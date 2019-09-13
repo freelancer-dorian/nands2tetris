@@ -1,0 +1,20 @@
+Chapter 4: Machine language
+
+1. Basic structure:
+	CPU + Regsiter + Memory
+		CPU: the core, execute commands, like: load/store data, compute data
+		Register: a memory space which CPU could access fast, store temporary data
+		Memory: a place to hold data, instructions
+2. Hack Computer:
+	Registers:
+		D: for data
+		A: for address or data
+	Memory:
+		M: Memory[A]
+	Instructions:
+		A inst:
+		@value: copy value('s data) into A register
+			eg: @sum
+				M = 0
+		C inst:
+				dest=comp;jump
