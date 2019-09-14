@@ -35,7 +35,7 @@ M=0
 	@arr
 	D=M
 	@i
-	A=D+M  // key point here, modifying the address
+	A=D+M  // key point here, arr var holds the real address which copied to D eariler, in order to access to it, copy it to A register
 	M=-1
 
 	// i++
