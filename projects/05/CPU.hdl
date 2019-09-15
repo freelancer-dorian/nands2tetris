@@ -40,4 +40,54 @@ CHIP CPU {
 
     PARTS:
     // Put your code here:
+    Not(in = instruction[15], out = isA);
+    Not(in = isA, out = isC);
+
+    // instruction[12] determin A or M
+    Not(in = instruction[12],out = selA);
+    Not(in = selA, out = selM);
+
+
+
+    // load ALUout to A?
+    And(a = isC, b = instruction[5], out = loadALUNeed);
+    Mux16(a=instruction, b=outALU, sel=loadALUNeed, out=inAR);
+    Or(a = isA, b = loadALUNeed, out = loadA);
+    // if A instruction, addressM = instruction[0..14]
+    ARegister(in=inAR, load=loadA, out=outAR, out[0..14] = addressM);
+
+
+    Mux16(a= outAR, b=inM, sel=selM, out=aluYInput);
+    
+    And(a = isC, b = instruction[4], out = loadD);
+    DRegister(in=outALU, load=loadD, out=outDR);
+
+    And(a = isC, b = instruction[3], out = writeM);
+
+    And(a = isC, b = instruction[11], out = inszx);
+    And(a = isC, b = instruction[10], out = insnx);
+    And(a = isC, b = instruction[9], out = inszy);
+    And(a = isC, b = instruction[8], out = insny);
+    And(a = isC, b = instruction[7], out = insf);
+    And(a = isC, b = instruction[6], out = insno);
+
+    ALU(x=outDR, y=aluYInput, zx=inszx, nx=insnx, zy=inszy, ny=insny, f=insf, no=insno, out=outM, out = outALU, zr=aluZR, ng=aluNG);
+
+    And(a = instruction[2], b = isC, out = isLES);
+    And(a = instruction[1], b = isC, out = isEQ);
+    And(a = instruction[0], b = isC, out = isGRT);
+
+    And(a = aluZR, b = isEQ, out = eqJump);
+    And(a = aluNG, b = isLES, out = lesJump);
+
+    Not(in = aluZR, out = notZR);
+    Not(in = aluNG, out = notNG);
+    And(a = notZR, b = notNG, out = outGRT);
+    And(a = outGRT, b = isGRT, out = grtJump);
+
+    Or(a = eqJump, b = lesJump, out = isJump1);
+    Or(a = isJump1, b = grtJump, out = jump);    
+
+    PC(in=outAR, load=jump, inc=true, reset=reset, out[0..14]=pc);
 }
+
