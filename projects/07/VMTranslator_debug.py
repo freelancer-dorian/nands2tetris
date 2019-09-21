@@ -3,10 +3,12 @@ import CodeWriter as cw
 from sys import argv
 
 
-DEBUG = False
+DEBUG = True
 
-f = open(argv[1])
-# f = open('StackArithmetic/SimpleAdd/SimpleAdd.vm')
+if DEBUG:
+	f = open('MemoryAccess/BasicTest/BasicTest.vm')
+else:
+	f = open(argv[1])
 output = ''
 
 lines = f.readlines()
@@ -61,9 +63,14 @@ for l in lines:
 		pass
 
 
+
+
+
+
 output = output + '(END)\n@END\n0;JMP\n'
 if DEBUG:
 	print(output)
-of = open(argv[1].replace('.vm','.asm'), 'w+')
-of.write(output)
-of.close()
+else:
+	of = open(argv[1].replace('.vm','.asm'), 'w+')
+	of.write(output)
+	of.close()
