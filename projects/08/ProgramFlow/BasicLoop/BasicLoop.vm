@@ -8,6 +8,7 @@
 // script before this code starts running.
 push constant 0    
 pop local 0         // initializes sum = 0
+
 label LOOP_START
 push argument 0    
 push local 0
