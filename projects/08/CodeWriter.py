@@ -48,13 +48,21 @@ def if_goto_translate(cmd):
 	label = cmd.split(' ')[1]
 	return '@SP\nM=M-1\nA=M\nD=M\n@%s\nD;JGT\n' % label
 
-def func_translate():
-	pass
-def return_translate():
-	pass
-def call_translate():
-	pass
+def func_translate(cmd):
+	func_label = cmd.split(' ')[1]
+	var_count = cmd.split(' ')[2]
+	ret = '(%s)\n' % func_label
+	for _ in range(int(var_count,10)):
+		ret = ret + '@0\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n'
+	return ret
 
+def return_translate(cmd):
+	return '@LCL\nD=M\n@FRAME\nM=D\n@ARG\nD=M\n@addr\nM=D\n@SP\nM=M-1\nA=M\nD=M\n@addr\nA=M\nM=D\n@ARG\nD=M\n@SP\nM=D+1\n@FRAME\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@1\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@SP\nM=M-1\nA=M\nD=M\n@SP\nM=M-1\nA=M\nM=M-D\n@SP\nM=M+1\n@SP\nM=M-1\nA=M\nD=M\n@THAT\nM=D\n@FRAME\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@2\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@SP\nM=M-1\nA=M\nD=M\n@SP\nM=M-1\nA=M\nM=M-D\n@SP\nM=M+1\n@SP\nM=M-1\nA=M\nD=M\n@THIS\nM=D\n@FRAME\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@3\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@SP\nM=M-1\nA=M\nD=M\n@SP\nM=M-1\nA=M\nM=M-D\n@SP\nM=M+1\n@SP\nM=M-1\nA=M\nD=M\n@ARG\nM=D\n@FRAME\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@4\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@SP\nM=M-1\nA=M\nD=M\n@SP\nM=M-1\nA=M\nM=M-D\n@SP\nM=M+1\n@SP\nM=M-1\nA=M\nD=M\n@LCL\nM=D\n@FRAME\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@5\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@SP\nM=M-1\nA=M\nD=M\n@SP\nM=M-1\nA=M\nM=M-D\n@SP\nM=M+1\n@SP\nM=M-1\nA=M\nD=M\n@5\nM=D\n@5\nM=M\n0;JMP\n'
+
+def call_translate(cmd):
+	func_name = cmd.split(' ')[1]
+	local_count = cmd.split(' ')[2]
+	return '@return_after_%s\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@LCL\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@ARG\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@THIS\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@THAT\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@SP\nD=M\nA=M\nM=D\n@SP\nM=M+1\n@%s\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@5\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@SP\nM=M-1\nA=M\nD=M\n@SP\nM=M-1\nA=M\nM=M+D\n@SP\nM=M+1\n@SP\nM=M-1\nA=M\nD=M\n@SP\nM=M-1\nA=M\nM=M-D\n@SP\nM=M+1\n@SP\nM=M-1\nA=M\nD=M\n@ARG\nM=D\n@%s\n0;JMP\n(return_after_%s)\n' % (func_name, local_count, func_name, func_name)
 
 def convertBaseAddr(segment,index):
 	if segment in dict_addr:

@@ -7,8 +7,6 @@ for _ in f:
 
 
 print(ret)
-
-
 # import CodeWriter
 
 

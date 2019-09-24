@@ -3,15 +3,34 @@ import CodeWriter as cw
 from sys import argv
 
 
-DEBUG = 1
+DEBUG = 0
 
-if DEBUG:
+if DEBUG == 1:
 	f = open('ProgramFlow/FibonacciSeries/FibonacciSeries.vm')
+elif DEBUG == 2:
+	f = open('test.vm')
 else:
 	f = open(argv[1])
+
+temp_vm_content = ''
 output = ''
 
 lines = f.readlines()
+
+# for l in lines:
+# 	cleaned_cmd = Parser.clean(l)
+	
+# 	if DEBUG:
+# 		print('//' + Parser.clean(l), end = '')
+
+# 	cmd_type = Parser.cmdType(cleaned_cmd)
+# 	if cmd_type == Parser.C_RETURN:
+			
+# 	elif cmd_type == Parser.C_CALL:
+	
+# 	else:
+# 		temp_vm_content = temp_vm_content + cleaned_cmd
+
 for l in lines:
 	cleaned_cmd = Parser.clean(l)
 	
@@ -69,12 +88,24 @@ for l in lines:
 			print('- cmd type: C_IF')
 			print(c)
 	if cmd_type == Parser.C_FUNCTION:
-		pass
-	if cmd_type == Parser.C_RETURN:
-		pass
-	if cmd_type == Parser.C_CALL:
-		pass
+		c = cw.func_translate(cleaned_cmd)
+		output = output + c
+		if DEBUG:
+			print('- cmd type: C_FUNCTION')
+			print(c)
 
+	if cmd_type == Parser.C_RETURN:
+		c = cw.return_translate(cleaned_cmd)
+		output = output + c
+		if DEBUG:
+			print('- cmd type: C_CALL')
+			print(c)		
+	if cmd_type == Parser.C_CALL:
+		c = cw.call_translate(cleaned_cmd)
+		output = output + c
+		if DEBUG:
+			print('- cmd type: C_CALL')
+			print(c)		
 
 output = output + '(END)\n@END\n0;JMP\n'
 if DEBUG:
