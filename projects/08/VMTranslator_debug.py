@@ -106,8 +106,6 @@ for l in lines:
 		if DEBUG:
 			print('- cmd type: C_CALL')
 			print(c)		
-
-output = output + '(END)\n@END\n0;JMP\n'
 if DEBUG:
 	print(output)
 else:

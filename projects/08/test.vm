@@ -1,1 +1,2 @@
-pop temp 0
+sub
+pop temp 1
