@@ -1,6 +1,6 @@
 dict_addr = {'argument':'ARG',
 			'local':'LCL',
-			'static':'ARG',
+			'static':'16',
 			'this':'THIS',
 			'that':'THAT',
 			'temp':'R5'}
@@ -15,6 +15,8 @@ def push_translate(segment, index):
 		addr_info = '@' + str(index) + '\nD=A\n'
 	elif segment =='temp':
 		addr_info = '@' + str(int(index,10) + 5) + '\nD=M\n'
+	elif 'static' in segment :
+		addr_info = '@%s_%s\nD=M\n' % (segment.replace('/','_'), index)
 	else:
 		base_addr = convertBaseAddr(segment, index)
 		if segment == 'pointer':
@@ -30,6 +32,8 @@ def push_translate(segment, index):
 def pop_translate(segment, index):
 	if segment == 'temp':
 		return '@SP\nM=M-1\nA=M\nD=M\n@' + str(int(index,10) + 5) + '\nM=D\n'
+	elif 'static' in segment:
+		return '@SP\nM=M-1\nA=M\nD=M\n@%s_%s\nM=D\n' % (segment.replace('/','_'), index)
 	else:
 		base_addr = convertBaseAddr(segment, index)
 		if segment == 'pointer':
@@ -59,10 +63,11 @@ def func_translate(cmd):
 def return_translate(cmd):
 	return '@LCL\nD=M\n@FRAME\nM=D\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@5\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@SP\nM=M-1\nA=M\nD=M\n@SP\nM=M-1\nA=M\nM=M-D\n@SP\nM=M+1\n@SP\nM=M-1\nA=M\nA=M\nD=M\n@RET\nM=D\n@ARG\nD=M\n@addr_arg\nM=D\n@SP\nM=M-1\nA=M\nD=M\n@addr_arg\nA=M\nM=D\n@LCL\nD=M\n@SP\nM=D\n@SP\nM=M-1\nA=M\nD=M\n@THAT\nM=D\n@SP\nM=M-1\nA=M\nD=M\n@THIS\nM=D\n@SP\nM=M-1\nA=M\nD=M\n@ARG\nM=D\n@SP\nM=M-1\nA=M\nD=M\n@LCL\nM=D\n@addr_arg\nD=M+1\n@SP\nM=D\n@RET\nA=M\n0;JMP\n'
 
-def call_translate(cmd):
+def call_translate(cmd, file_name, idx):
 	func_name = cmd.split(' ')[1]
+	ret_name = cmd.split(' ')[1] + file_name.replace('/','_') + str(idx)
 	local_count = cmd.split(' ')[2]
-	return '@return_after_%s\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@LCL\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@ARG\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@THIS\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@THAT\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@SP\nD=M\nA=M\nM=D\n@SP\nM=M+1\n@%s\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@5\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@SP\nM=M-1\nA=M\nD=M\n@SP\nM=M-1\nA=M\nM=M+D\n@SP\nM=M+1\n@SP\nM=M-1\nA=M\nD=M\n@SP\nM=M-1\nA=M\nM=M-D\n@SP\nM=M+1\n@SP\nM=M-1\nA=M\nD=M\n@ARG\nM=D\n@SP\nD=M\n@LCL\nM=D\n@%s\n0;JMP\n(return_after_%s)\n' % (func_name, local_count, func_name, func_name)
+	return '@return_after_%s\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@LCL\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@ARG\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@THIS\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@THAT\nD=M\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@SP\nD=M\nA=M\nM=D\n@SP\nM=M+1\n@%s\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@5\nD=A\n@SP\nA=M\nM=D\n@SP\nM=M+1\n@SP\nM=M-1\nA=M\nD=M\n@SP\nM=M-1\nA=M\nM=M+D\n@SP\nM=M+1\n@SP\nM=M-1\nA=M\nD=M\n@SP\nM=M-1\nA=M\nM=M-D\n@SP\nM=M+1\n@SP\nM=M-1\nA=M\nD=M\n@ARG\nM=D\n@SP\nD=M\n@LCL\nM=D\n@%s\n0;JMP\n(return_after_%s)\n' % (ret_name, local_count, func_name, ret_name)
 
 def convertBaseAddr(segment,index):
 	if segment in dict_addr:
